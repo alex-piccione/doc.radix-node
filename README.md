@@ -1,8 +1,11 @@
-# doc.radix-node
+# Radix Node
 Documentation about running a Radix Node
 
-Installation: https://docs-babylon.radixdlt.com/main/node-and-gateway/docker-install-node.html  
+Doc: https://docs.radixdlt.com/docs/running-a-node
 
+Doc: https://docs.radixdlt.com/docs/running-a-node
+
+Installation: https://docs-babylon.radixdlt.com/main/node-and-gateway/docker-install-node.html  
 
 
 ## Note of installation on local pc
