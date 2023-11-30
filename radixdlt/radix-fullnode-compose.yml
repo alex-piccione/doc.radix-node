@@ -1,0 +1,53 @@
+# copied from https://docs-babylon.radixdlt.com/main/node-and-gateway/docker-install-node.html on 30/11/2023
+version: '3.8'
+services:
+  core:
+    cap_add:
+    - NET_ADMIN
+    environment:
+      RADIXDLT_NETWORK_ID: 1
+      RADIXDLT_NETWORK_SEEDS_REMOTE: "radix://node_rdx1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfw0vnc65@52.212.35.209,radix://node_rdx1qgxn3eeldj33kd98ha6wkjgk4k77z6xm0dv7mwnrkefknjcqsvhuu4gc609@54.79.136.139,radix://node_rdx1qwrrnhzfu99fg3yqgk3ut9vev2pdssv7hxhff80msjmmcj968487uugc0t2@43.204.226.50,radix://node_rdx1q0gnmwv0fmcp7ecq0znff7yzrt7ggwrp47sa9pssgyvrnl75tvxmvj78u7t@52.21.106.232"
+      JAVA_OPTS: --enable-preview -server -Xms12g -Xmx12g -XX:MaxDirectMemorySize=2048m
+        -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+        -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+      RADIXDLT_LOG_LEVEL: info
+      RADIXDLT_NETWORK_USE_PROXY_PROTOCOL: 'false'
+      RADIXDLT_VALIDATOR_KEY_LOCATION: /home/radixdlt/node-keystore.ks
+      RADIX_NODE_KEYSTORE_PASSWORD: "${RADIXDLT_NODE_KEY_PASSWORD}"
+    image: radixdlt/babylon-node:v1.0.4
+    init: true
+    mem_limit: 14000m
+    restart: unless-stopped
+    ulimits:
+      memlock: -1
+      nofile:
+        hard: 65536
+        soft: 65536
+    volumes:
+    - babylon_ledger:/home/radixdlt/RADIXDB
+    - ./radixdlt/node-keystore.ks:/home/radixdlt/node-keystore.ks
+  nginx:
+    environment:
+      RADIXDLT_GATEWAY_API_ENABLE: 'true'
+      RADIXDLT_GATEWAY_BEHIND_AUTH: 'true'
+      RADIXDLT_NETWORK_USE_PROXY_PROTOCOL: 'false'
+      RADIXDLT_TRANSACTIONS_API_ENABLE: 'false'
+    image: radixdlt/babylon-nginx:1.0.1
+    ports:
+    - 443:443
+    - 30000:30000
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        hard: 65536
+        soft: 65536
+    volumes:
+    - nginx_secrets:/etc/nginx/secrets
+volumes:
+  babylon_ledger:
+    driver: local
+    driver_opts:
+      device: ./babylon-ledger
+      o: bind
+      type: none
+  nginx_secrets:
